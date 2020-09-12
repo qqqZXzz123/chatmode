@@ -45,7 +45,6 @@ public class Calculate {
 		while (tokenizer.hasMoreTokens()) {
 			curr = tokenizer.nextToken();
 			if (!tokenizer.hasMoreTokens() && isOperator(curr)) {
-				System.out.println("Некорректное выражение.");
 				flag = false;
 				return postfix;
 			}
@@ -57,7 +56,6 @@ public class Calculate {
 					while (!stack.peek().equals("(")) {
 						postfix.add(stack.pop());
 						if (stack.isEmpty()) {
-							System.out.println("Скобки не согласованы.");
 							flag = false;
 							return postfix;
 						}
@@ -69,7 +67,7 @@ public class Calculate {
 				}
 				else {
 					if (curr.equals("-") && (prev.equals("") || (isDelimiter(prev)  && !prev.equals(")")))) {
-						// унарный минус
+						// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 						curr = "u-";
 					}
 					else {
@@ -92,7 +90,6 @@ public class Calculate {
 		while (!stack.isEmpty()) {
 			if (isOperator(stack.peek())) postfix.add(stack.pop());
 			else {
-				System.out.println("Скобки не согласованы.");
 				flag = false;
 				return postfix;
 			}
