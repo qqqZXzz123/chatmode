@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Implementation-Title: chatmod
-Implementation-Version: 0.7
+Implementation-Version: 0.4.1
 Specification-Vendor: examplemodsareus
 Specification-Title: examplemod
-Implementation-Timestamp: 2020-08-29T21:25:30+0300
+Implementation-Timestamp: 2020-09-12T19:58:10+0300
 Specification-Version: 1
 Implementation-Vendor: examplemodsareus
 

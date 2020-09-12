@@ -11,7 +11,7 @@
 <mapEntry key="FORGE_VERSION" value="14.23.5.2854"/>
 <mapEntry key="MCP_MAPPINGS" value="snapshot_20171003-1.12"/>
 <mapEntry key="MCP_TO_SRG" value="C:\Users\Nya\Desktop\chatmod\build\createSrgToMcp\output.srg"/>
-<mapEntry key="MC_VERSION" value="${MC_VERSION}"/>
+<mapEntry key="MC_VERSION" value="1.12.2"/>
 <mapEntry key="MOD_CLASSES" value="C:\Users\Nya\Desktop\chatmod\bin\main;C:\Users\Nya\Desktop\chatmod\bin\main"/>
 <mapEntry key="assetDirectory" value="C:\Users\Nya\.gradle\caches\forge_gradle\assets"/>
 <mapEntry key="assetIndex" value="1.12"/>
@@ -21,6 +21,7 @@
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.legacydev.MainClient"/>
 <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="chatmod"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="build"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="chatmod"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Users\Nya\Desktop\chatmod\run"/>
