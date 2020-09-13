@@ -18,7 +18,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.holo.chatmode.gui.ModGui;
 import com.holo.chatmode.proxy.ClientProxy;
+import com.holo.chatmode.reference.Reference;
 
 import java.util.Timer;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -33,12 +35,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class Handler {
 	
-	public static int countAnswer = 3;
-	public static boolean auth = false;
-    public static String nsChest = "";
-    public static String subTitle = "";
-    public static boolean isPrinted = false;
-    public static boolean isAuth = false;
+	public static int countAnswer = 2;
+    public String nsChest = "";
+    public String subTitle = "";
+    public boolean isPrinted = false;
+    public boolean isAuth = false;
 	
 	public Double calc(List<String> postfix) {
 		Deque<Double> stack = new ArrayDeque<Double>();
@@ -67,7 +68,7 @@ public class Handler {
 	
 	@SubscribeEvent
     public void checkMessage(ClientChatReceivedEvent event) {
-        if (auth) {
+        if (Reference.auth) {
             String msg = event.getMessage().getUnformattedText().trim();
             if (msg.startsWith("Решите пример:")) {
                 msg = msg.substring(15);
@@ -80,15 +81,15 @@ public class Handler {
                 List<String> expression = Calculate.parse(s);
                 boolean flag = Calculate.flag;
                 if (flag) {
-                    for (final String x : expression) {
+                    for (String x : expression) {
                         System.out.print(x + " ");
                     }
-                    final double answer = calc(expression);
-                    final int result = (int)answer;
+                    double answer = calc(expression);
+                    int result = (int)answer;
                     new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            if (countAnswer >= 3) {
+                            if (countAnswer >= 2) {
                             	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Все сработоло, но не отправилось. Так должнооо быть =)"));
                                 countAnswer = 0;
                             }
@@ -97,7 +98,7 @@ public class Handler {
                             	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Пример решен."));
                             }
                         }
-                    }, 2501 + (int)(Math.random() * 199.0));
+                    }, 2301 + (int)(Math.random() * 399.0));
                 }
             }
             else if (msg.startsWith("Успей забрать всё:")) {
@@ -109,35 +110,36 @@ public class Handler {
         }
     }
 	
-	/*@SubscribeEvent
-    public static void getCode(final TickEvent.PlayerTickEvent event) {
-        if (auth) {
+	@SuppressWarnings("null")
+	@SubscribeEvent
+    public void getCode(TickEvent.PlayerTickEvent event) {
+        if (Reference.auth) {
             try {
-                subTitle = (String)ReflectionHelper.findField((Class)GuiIngame.class, "displayedSubTitle", "field_175200_y").get(Minecraft.func_71410_x().field_71456_v);
+                subTitle = (String) ReflectionHelper.findField(GuiIngame.class, "displayedSubTitle", "field_175200_y").get(Minecraft.getMinecraft().ingameGUI);
             }
             catch (IllegalArgumentException | IllegalAccessException ex2) {
-                final Exception ex;
-                final Exception e = ex;
+                Exception e = null;
                 e.printStackTrace();
             }
-            if (RegistryHandler.subTitle.startsWith("§c\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435") && !RegistryHandler.isPrinted) {
-                RegistryHandler.isPrinted = true;
-                RegistryHandler.subTitle = RegistryHandler.subTitle.substring(17);
-                RegistryHandler.subTitle = RegistryHandler.subTitle.substring(0, 15);
-                Minecraft.func_71410_x().field_71439_g.func_71165_d(RegistryHandler.subTitle);
-                System.out.println(RegistryHandler.subTitle);
-                RegistryHandler.subTitle = "";
-                RegistryHandler.isPrinted = false;
+            if (subTitle.startsWith("§c\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435") && !isPrinted) {
+                isPrinted = true;
+                subTitle = subTitle.substring(17);
+                subTitle = subTitle.substring(0, 15);
+                Minecraft.getMinecraft().player.sendChatMessage(subTitle);
+                System.out.println(subTitle);
+                subTitle = "";
+                isPrinted = false;
             }
         }
-    }*/
+    }
 	
 	@SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onEvent(InputEvent.KeyInputEvent event) {
         KeyBinding keyBindings = ClientProxy.keyBindings;
         if (keyBindings.isPressed()) {
-            if (auth) {
+            if (Reference.auth) {
+            	Minecraft.getMinecraft().displayGuiScreen(new ModGui());
                 if (nsChest == "") {
                     Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("nexuschest'a  еще не было!!"));
                 }
@@ -163,16 +165,16 @@ public class Handler {
                 for (Element paragraph : paragraphs) {
                     System.out.println(paragraph.text());
                     if (paragraph.text().equals("ok")) {
-                        auth = true;
+                    	Reference.auth = true;
                     }
                     else {
-                        auth = false;
+                    	Reference.auth = false;
                     }
                 }
             }
             catch (IOException e) {
                 e.printStackTrace();
-                auth = false;
+                Reference.auth = false;
             }
             new Timer().schedule(new TimerTask() {
                 @Override
@@ -187,7 +189,7 @@ public class Handler {
         String newMsg = "";
         final String[] sym = { "\uff10", "\uff11", "\uff12", "\uff13", "\uff14", "\uff15", "\uff16", "\uff17", "\uff18", "\uff19", "\uff0b", "\uff0d", "\uff0f", "\uff0a" };
         for (int i = 0; i < msg.length(); ++i) {
-            System.out.println("Int i = " + i);
+            //System.out.println("Int i = " + i);
             if (msg.charAt(i) == sym[0].charAt(0)) {
                 newMsg += "0";
             }
@@ -232,14 +234,14 @@ public class Handler {
             }
             else {
                 if (msg.charAt(i) != ' ') {
-                    System.out.println("SimMesNew = " + msg);
+                    //System.out.println("SimMesNew = " + msg);
                     ++countAnswer;
                     return msg;
                 }
                 newMsg += " ";
             }
         }
-        System.out.println("new = " + newMsg);
+        //System.out.println("new = " + newMsg);
         ++countAnswer;
         return newMsg;
     }

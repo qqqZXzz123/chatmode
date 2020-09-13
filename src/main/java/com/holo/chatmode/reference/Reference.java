@@ -9,4 +9,6 @@ public class Reference
 
 	public static final String CLIENT = "com.holo.chatmode.proxy.ClientProxy";
 	public static final String COMMON = "com.holo.chatmode.proxy.CommonProxy";
+	
+	public static boolean auth = false;
 }
