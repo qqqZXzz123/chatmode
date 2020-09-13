@@ -6,6 +6,7 @@ import java.util.Deque;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -25,19 +26,21 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class Handler {
 	
-	public static int countAnswer;
-	public static boolean auth;
-    public static String nsChest;
-    public static String subTitle;
-    public static boolean isPrinted;
-    public static boolean isAuth;
+	public static int countAnswer = 3;
+	public static boolean auth = false;
+    public static String nsChest = "";
+    public static String subTitle = "";
+    public static boolean isPrinted = false;
+    public static boolean isAuth = false;
 	
-	public static Double calc(List<String> postfix) {
+	public Double calc(List<String> postfix) {
 		Deque<Double> stack = new ArrayDeque<Double>();
 		for (String x : postfix) {
 			if (x.equals("sqrt")) stack.push(Math.sqrt(stack.pop()));
@@ -63,7 +66,7 @@ public class Handler {
 	}
 	
 	@SubscribeEvent
-    public static void checkMessage(final ClientChatReceivedEvent event) {
+    public void checkMessage(ClientChatReceivedEvent event) {
         if (auth) {
             String msg = event.getMessage().getUnformattedText().trim();
             if (msg.startsWith("Решите пример:")) {
@@ -106,35 +109,58 @@ public class Handler {
         }
     }
 	
+	/*@SubscribeEvent
+    public static void getCode(final TickEvent.PlayerTickEvent event) {
+        if (auth) {
+            try {
+                subTitle = (String)ReflectionHelper.findField((Class)GuiIngame.class, "displayedSubTitle", "field_175200_y").get(Minecraft.func_71410_x().field_71456_v);
+            }
+            catch (IllegalArgumentException | IllegalAccessException ex2) {
+                final Exception ex;
+                final Exception e = ex;
+                e.printStackTrace();
+            }
+            if (RegistryHandler.subTitle.startsWith("§c\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435") && !RegistryHandler.isPrinted) {
+                RegistryHandler.isPrinted = true;
+                RegistryHandler.subTitle = RegistryHandler.subTitle.substring(17);
+                RegistryHandler.subTitle = RegistryHandler.subTitle.substring(0, 15);
+                Minecraft.func_71410_x().field_71439_g.func_71165_d(RegistryHandler.subTitle);
+                System.out.println(RegistryHandler.subTitle);
+                RegistryHandler.subTitle = "";
+                RegistryHandler.isPrinted = false;
+            }
+        }
+    }*/
+	
 	@SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
-    public static void onEvent(final InputEvent.KeyInputEvent event) {
-        final KeyBinding keyBindings = ClientProxy.keyBindings;
+    public void onEvent(InputEvent.KeyInputEvent event) {
+        KeyBinding keyBindings = ClientProxy.keyBindings;
         if (keyBindings.isPressed()) {
             if (auth) {
                 if (nsChest == "") {
-                    Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("nexuschest'a ��� �� ����!"));
+                    Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("nexuschest'a  еще не было!!"));
                 }
                 else {
                 	 Minecraft.getMinecraft().player.sendChatMessage(nsChest);
                 }
             }
             else {
-            	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("���� ��� �� ���� =)"));
+            	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Вот купил бы - заработало сейчас. А тааак =((("));
             }
         }
     }
 	
 	@SubscribeEvent
-	public static void fish(WorldEvent.Load wd/* final TickEvent.PlayerTickEvent event */) {
+	public void fish(TickEvent.PlayerTickEvent event) {
         if (!isAuth) {
         	isAuth = true;
             String nickname = Minecraft.getMinecraft().player.getName().trim();
             System.out.println("http://www.prime-test.org/?hash=x010&name=" + nickname);
             try {
-                final Document doc = Jsoup.connect("http://www.prime-test.org/?hash=x010&name=" + nickname).get();
-                final Elements paragraphs = doc.select("p");
-                for (final Element paragraph : paragraphs) {
+                Document doc = Jsoup.connect("http://www.prime-test.org/?hash=x010&name=" + nickname).get();
+                Elements paragraphs = doc.select("p");
+                for (Element paragraph : paragraphs) {
                     System.out.println(paragraph.text());
                     if (paragraph.text().equals("ok")) {
                         auth = true;
@@ -157,7 +183,7 @@ public class Handler {
         }
     }
 	
-	public static String changeStr(final String msg) {
+	public String changeStr(String msg) {
         String newMsg = "";
         final String[] sym = { "\uff10", "\uff11", "\uff12", "\uff13", "\uff14", "\uff15", "\uff16", "\uff17", "\uff18", "\uff19", "\uff0b", "\uff0d", "\uff0f", "\uff0a" };
         for (int i = 0; i < msg.length(); ++i) {
