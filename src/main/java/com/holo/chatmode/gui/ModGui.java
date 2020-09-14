@@ -2,6 +2,8 @@ package com.holo.chatmode.gui;
 
 import java.io.IOException;
 
+import com.holo.chatmode.reference.Reference;
+
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiLabel;
@@ -14,19 +16,22 @@ public class ModGui extends GuiScreen {
     private GuiButton offMod;
     private GuiLabel mLabelIpAddress;
     private GuiTextField txt;
-    
-    private String hButtonValue = "Выключено";
-    
-    private boolean aaaa = false;
 
     @Override
-    public void initGui() {
+    public void initGui() 
+    {
         super.initGui();
         this.buttonList.add(mButtonClose = new GuiButton(0, this.width / 2 - 100, this.height - (this.height / 4) + 10, "Закрыть"));
-        if (aaaa)
-        	this.buttonList.add(offMod = new GuiButton(0, this.width / 2 - 100, this.height - (this.height / 4) - 50, "Работает"));
+        
+        // Сменяемая кнопка
+        if (Reference.auth) 
+        {
+    		this.buttonList.add(offMod = new GuiButton(0, this.width / 2 - 100, this.height - (this.height / 4) - 50, "Работает"));
+    	}
         else 
-        	this.buttonList.add(offMod = new GuiButton(0, this.width / 2 - 100, this.height - (this.height / 4) - 50, "Выключено"));
+    	{
+    		this.buttonList.add(offMod = new GuiButton(0, this.width / 2 - 100, this.height - (this.height / 4) - 50, "Выключено"));
+    	}
         
         this.labelList.add(mLabelIpAddress = new GuiLabel(fontRenderer, 1, this.width / 2 - 20, this.height / 2 + 40, 300, 20, 0xFFFFFF));
 
@@ -37,16 +42,16 @@ public class ModGui extends GuiScreen {
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button == mButtonClose) {
-            mc.player.closeScreen();
+        	mc.player.closeScreen();
         } 
         else if (button == offMod) 
         {
-        	if (!aaaa) {
-        		aaaa = true;
-        		offMod.displayString = "Работает";
+        	if (!Reference.auth) {
+        		Reference.auth = true;
+        		button.displayString = "Работает";
         	} else {
-        		aaaa = false;
-        		offMod.displayString = "Выключено";
+        		Reference.auth = false;
+        		button.displayString = "Выключено";
         	}
         }
     }

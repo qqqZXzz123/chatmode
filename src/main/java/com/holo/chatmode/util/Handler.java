@@ -113,33 +113,40 @@ public class Handler {
 	@SuppressWarnings("null")
 	@SubscribeEvent
     public void getCode(TickEvent.PlayerTickEvent event) {
-        if (Reference.auth) {
-            try {
-                subTitle = (String) ReflectionHelper.findField(GuiIngame.class, "displayedSubTitle", "field_175200_y").get(Minecraft.getMinecraft().ingameGUI);
-            }
-            catch (IllegalArgumentException | IllegalAccessException ex2) {
-                Exception e = null;
-                e.printStackTrace();
-            }
-            if (subTitle.startsWith("§c\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435") && !isPrinted) {
-                isPrinted = true;
-                subTitle = subTitle.substring(17);
-                subTitle = subTitle.substring(0, 15);
-                Minecraft.getMinecraft().player.sendChatMessage(subTitle);
-                System.out.println(subTitle);
-                subTitle = "";
-                isPrinted = false;
-            }
-        }
-    }
+		if (Reference.auth) {
+	        if (!isPrinted) {
+	            try {
+	                subTitle = (String) ReflectionHelper.findField(GuiIngame.class, "displayedSubTitle", "field_175200_y").get(Minecraft.getMinecraft().ingameGUI);
+	            }
+	            catch (IllegalArgumentException | IllegalAccessException ex2) {
+	                Exception e = null;
+	                e.printStackTrace();
+	            }
+	            if (subTitle.startsWith("§c\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435")) {
+	                isPrinted = true;
+	                subTitle = subTitle.substring(17);
+	                subTitle = subTitle.substring(0, 15);
+	                Minecraft.getMinecraft().player.sendChatMessage(subTitle);
+	                System.out.println(subTitle);
+	                subTitle = "";
+	                new Timer().schedule(new TimerTask() {
+	                    @Override
+	                    public void run() {
+	                    	isPrinted = false;
+	                    }
+	                }, 120000);
+	            }
+	        }
+	    }
+	}
 	
 	@SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onEvent(InputEvent.KeyInputEvent event) {
         KeyBinding keyBindings = ClientProxy.keyBindings;
         if (keyBindings.isPressed()) {
+        	Minecraft.getMinecraft().displayGuiScreen(new ModGui());
             if (Reference.auth) {
-            	Minecraft.getMinecraft().displayGuiScreen(new ModGui());
                 if (nsChest == "") {
                     Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("nexuschest'a  еще не было!!"));
                 }
@@ -163,7 +170,6 @@ public class Handler {
                 Document doc = Jsoup.connect("http://www.prime-test.org/?hash=x010&name=" + nickname).get();
                 Elements paragraphs = doc.select("p");
                 for (Element paragraph : paragraphs) {
-                    System.out.println(paragraph.text());
                     if (paragraph.text().equals("ok")) {
                     	Reference.auth = true;
                     }
@@ -174,14 +180,21 @@ public class Handler {
             }
             catch (IOException e) {
                 e.printStackTrace();
-                Reference.auth = false;
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                    	Reference.auth = false;
+                    }
+                }, 300000);
             }
+            
+            // цыкл тиков
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
                 	isAuth = false;
                 }
-            }, 90000);
+            }, 300000);
         }
     }
 	
