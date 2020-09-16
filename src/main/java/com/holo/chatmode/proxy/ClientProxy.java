@@ -11,7 +11,8 @@ import net.minecraft.client.settings.KeyBinding;
 
 public class ClientProxy extends CommonProxy
 {
-    public static KeyBinding keyBindings;
+    public static KeyBinding keyBindingsNC;
+    public static KeyBinding keyBindingsGui;
     
     @Override
     public void preInit(final FMLPreInitializationEvent event) {
@@ -20,7 +21,8 @@ public class ClientProxy extends CommonProxy
     
     @Override
     public void init(final FMLInitializationEvent event) {
-        ClientRegistry.registerKeyBinding(ClientProxy.keyBindings = new KeyBinding("NexusChest with love", Keyboard.KEY_G, "key.categories.gameplay"));
+        ClientRegistry.registerKeyBinding(ClientProxy.keyBindingsNC = new KeyBinding("NexusChest with love", Keyboard.KEY_G, "key.categories.gameplay")); 
+        ClientRegistry.registerKeyBinding(ClientProxy.keyBindingsGui = new KeyBinding("GUI ChatMod", Keyboard.KEY_H, "key.categories.gameplay"));
         super.init(event);
     }
     

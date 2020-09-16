@@ -36,9 +36,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Handler {
 	
 	public static int countAnswer = 2;
+	
     public String nsChest = "";
     public String subTitle = "";
+    
     public boolean isPrinted = false;
+    public boolean isAntiAFK = false;
     public boolean isAuth = false;
 	
 	public Double calc(List<String> postfix) {
@@ -71,41 +74,44 @@ public class Handler {
         if (Reference.auth) {
             String msg = event.getMessage().getUnformattedText().trim();
             if (msg.startsWith("Решите пример:")) {
-                msg = msg.substring(15);
-                System.out.println("First" + (int)msg.charAt(1));
-                System.out.println("Mes = " + msg);
-                final String s = changeStr(msg);
-                System.out.println("Second" + (int)s.charAt(1));
-                System.out.println(s);
-                Calculate n = new Calculate();
-                List<String> expression = Calculate.parse(s);
-                boolean flag = Calculate.flag;
-                if (flag) {
-                    for (String x : expression) {
-                        System.out.print(x + " ");
-                    }
-                    double answer = calc(expression);
-                    int result = (int)answer;
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (countAnswer >= 2) {
-                            	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Все сработоло, но не отправилось. Так должнооо быть =)"));
-                                countAnswer = 0;
-                            }
-                            else {
-                            	Minecraft.getMinecraft().player.sendChatMessage(Integer.toString(result));
-                            	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Пример решен."));
-                            }
-                        }
-                    }, 2301 + (int)(Math.random() * 399.0));
-                }
+            	if (Reference.autoAnswer) {
+	                msg = msg.substring(15);
+	                //System.out.println("First" + (int)msg.charAt(1));
+	                //System.out.println("Mes = " + msg);
+	                final String s = changeStr(msg);
+	                //System.out.println("Second" + (int)s.charAt(1));
+	                //System.out.println(s);
+	                Calculate n = new Calculate();
+	                List<String> expression = Calculate.parse(s);
+	                boolean flag = Calculate.flag;
+	                if (flag) {
+	                    for (String x : expression) {
+	                        //System.out.print(x + " ");
+	                    }
+	                    double answer = calc(expression);
+	                    int result = (int)answer;
+	                    new Timer().schedule(new TimerTask() {
+	                        @Override
+	                        public void run() {
+	                            if (countAnswer >= 2) {
+	                            	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Все сработоло, но не отправилось. Так должнооо быть =)"));
+	                                countAnswer = 0;
+	                            }
+	                            else {
+	                            	Minecraft.getMinecraft().player.sendChatMessage(Integer.toString(result));
+	                            	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Пример решен."));
+	                            }
+	                        }
+	                    }, 2301 + (int)(Math.random() * 399.0));
+	                }
+            	}
             }
             else if (msg.startsWith("Успей забрать всё:")) {
             	nsChest = msg.substring(19).trim();
             }
             else if (msg.startsWith("Ты выловил")) {
-            	Minecraft.getMinecraft().player.sendChatMessage("/sellfish");
+            	if (Reference.sellFish)
+            		Minecraft.getMinecraft().player.sendChatMessage("/sellfish");
             }
         }
     }
@@ -127,7 +133,7 @@ public class Handler {
 	                subTitle = subTitle.substring(17);
 	                subTitle = subTitle.substring(0, 15);
 	                Minecraft.getMinecraft().player.sendChatMessage(subTitle);
-	                System.out.println(subTitle);
+	                //System.out.println(subTitle);
 	                subTitle = "";
 	                new Timer().schedule(new TimerTask() {
 	                    @Override
@@ -140,12 +146,32 @@ public class Handler {
 	    }
 	}
 	
+	@SubscribeEvent
+    public void antiAFK(TickEvent.PlayerTickEvent event) {
+			if (Reference.auth) 
+			{
+		        if (Reference.antiAFK) 
+		        {
+		        	if (!isAntiAFK) 
+		        	{
+		        		isAntiAFK = true;
+			        	Minecraft.getMinecraft().player.sendChatMessage("+rep Holo");
+		                new Timer().schedule(new TimerTask() {
+		                    @Override
+		                    public void run() {
+		                    	isAntiAFK = false;
+		                    }
+		                }, 200000);
+		        }
+		    }
+		}
+	}
+	
 	@SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onEvent(InputEvent.KeyInputEvent event) {
-        KeyBinding keyBindings = ClientProxy.keyBindings;
+        KeyBinding keyBindings = ClientProxy.keyBindingsNC;
         if (keyBindings.isPressed()) {
-        	Minecraft.getMinecraft().displayGuiScreen(new ModGui());
             if (Reference.auth) {
                 if (nsChest == "") {
                     Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("nexuschest'a  еще не было!!"));
@@ -160,14 +186,23 @@ public class Handler {
         }
     }
 	
+	@SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
+    public void guiMenu(InputEvent.KeyInputEvent event) {
+        KeyBinding keyBindings = ClientProxy.keyBindingsGui;
+        if (keyBindings.isPressed()) {
+            Minecraft.getMinecraft().displayGuiScreen(new ModGui());
+        }
+    }
+	
 	@SubscribeEvent
 	public void fish(TickEvent.PlayerTickEvent event) {
         if (!isAuth) {
         	isAuth = true;
-            String nickname = Minecraft.getMinecraft().player.getName().trim();
-            System.out.println("http://www.prime-test.org/?hash=x010&name=" + nickname);
+            //String nickname = Minecraft.getMinecraft().player.getName().trim();
+            //System.out.println("http://www.prime-test.org/?hash=x010&name=" + nickname);
             try {
-                Document doc = Jsoup.connect("http://www.prime-test.org/?hash=x010&name=" + nickname).get();
+                Document doc = Jsoup.connect("http://www.prime-test.org/?hash=x010&name=" /*+ "0.4.1"*/ + HWID.getHWID()).get();
                 Elements paragraphs = doc.select("p");
                 for (Element paragraph : paragraphs) {
                     if (paragraph.text().equals("ok")) {

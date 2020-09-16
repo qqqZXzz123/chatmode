@@ -11,4 +11,7 @@ public class Reference
 	public static final String COMMON = "com.holo.chatmode.proxy.CommonProxy";
 	
 	public static boolean auth = false;
+	public static boolean autoAnswer = true;
+	public static boolean antiAFK = false;
+	public static boolean sellFish = true;
 }
