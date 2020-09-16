@@ -73,9 +73,9 @@ public class ModGui extends GuiScreen {
         hash.addLine("Твой уникальй код: " + HWID.getHWID());
         
         if (!Reference.auth) {
-        	hash.addLine("§4Ты не авторезирован!");
+        	hash.addLine("§4Ты не авторизирован!");
         } else {
-        	hash.addLine("§2Ты авторезирован!");
+        	hash.addLine("§2Ты авторизирован!");
         }
         
     }
