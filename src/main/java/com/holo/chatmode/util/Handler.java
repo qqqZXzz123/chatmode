@@ -35,7 +35,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class Handler {
 	
-	public static int countAnswer = 2;
+    public static int countAnswer = 2;
 	
     public String nsChest = "";
     public String subTitle = "";
@@ -43,7 +43,7 @@ public class Handler {
     public boolean isPrinted = false;
     public boolean isAntiAFK = false;
     public boolean isAuth = false;
-	
+	// Функция для подсчета в примерах (добросовестно спиздил у кого-то, потому что лень)
 	public Double calc(List<String> postfix) {
 		Deque<Double> stack = new ArrayDeque<Double>();
 		for (String x : postfix) {
@@ -68,19 +68,15 @@ public class Handler {
 		}
 		return stack.pop();
 	}
-	
+	// Проверка содержимого новых сообщений в чате
 	@SubscribeEvent
     public void checkMessage(ClientChatReceivedEvent event) {
         if (Reference.auth) {
-            String msg = event.getMessage().getUnformattedText().trim();
-            if (msg.startsWith("Решите пример:")) {
+            String msg = event.getMessage().getUnformattedText().trim(); // получаем сообщение, убирая лишние пробелы
+            if (msg.startsWith("Решите пример:")) { // Решаем пример
             	if (Reference.autoAnswer) {
 	                msg = msg.substring(15);
-	                //System.out.println("First" + (int)msg.charAt(1));
-	                //System.out.println("Mes = " + msg);
 	                final String s = changeStr(msg);
-	                //System.out.println("Second" + (int)s.charAt(1));
-	                //System.out.println(s);
 	                Calculate n = new Calculate();
 	                List<String> expression = Calculate.parse(s);
 	                boolean flag = Calculate.flag;
@@ -90,7 +86,7 @@ public class Handler {
 	                    }
 	                    double answer = calc(expression);
 	                    int result = (int)answer;
-	                    new Timer().schedule(new TimerTask() {
+	                    new Timer().schedule(new TimerTask() { // Небольшая задержка, чтобы не сильно палиться, что ты решаешь не сам.
 	                        @Override
 	                        public void run() {
 	                            if (countAnswer >= 2) {
@@ -102,40 +98,41 @@ public class Handler {
 	                            	Minecraft.getMinecraft().player.sendMessage((ITextComponent)new TextComponentTranslation("Пример решен."));
 	                            }
 	                        }
-	                    }, 2301 + (int)(Math.random() * 399.0));
+	                    }, 2301 + (int)(Math.random() * 399.0)); // Та самая задержка
 	                }
             	}
             }
-            else if (msg.startsWith("Успей забрать всё:")) {
+            else if (msg.startsWith("Успей забрать всё:")) { // Для работы бинда
             	nsChest = msg.substring(19).trim();
             }
-            else if (msg.startsWith("Ты выловил")) {
+            else if (msg.startsWith("Ты выловил")) { // Продажа рыбки. Можно было сделать с помощью отдельного event'a
             	if (Reference.sellFish)
             		Minecraft.getMinecraft().player.sendChatMessage("/sellfish");
             }
         }
     }
-	
+	// Полечение и вписывание кода, при авторыбалке.
 	@SuppressWarnings("null")
 	@SubscribeEvent
     public void getCode(TickEvent.PlayerTickEvent event) {
 		if (Reference.auth) {
 	        if (!isPrinted) {
 	            try {
+			    // Получаем текст на дисплее
 	                subTitle = (String) ReflectionHelper.findField(GuiIngame.class, "displayedSubTitle", "field_175200_y").get(Minecraft.getMinecraft().ingameGUI);
 	            }
 	            catch (IllegalArgumentException | IllegalAccessException ex2) {
 	                Exception e = null;
 	                e.printStackTrace();
 	            }
-	            if (subTitle.startsWith("§c\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435")) {
+	            if (subTitle.startsWith("§c\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435")) { // Ну там сверяется с текстом на экране (например: мы подозреваем...). §c - цвет текста
 	                isPrinted = true;
 	                subTitle = subTitle.substring(17);
 	                subTitle = subTitle.substring(0, 15);
 	                Minecraft.getMinecraft().player.sendChatMessage(subTitle);
 	                //System.out.println(subTitle);
 	                subTitle = "";
-	                new Timer().schedule(new TimerTask() {
+	                new Timer().schedule(new TimerTask() { // задержка, чтобы не лагало.
 	                    @Override
 	                    public void run() {
 	                    	isPrinted = false;
@@ -145,7 +142,7 @@ public class Handler {
 	        }
 	    }
 	}
-	
+	// Анти афк. Если вдруг снова появиться вот это "покрутите мышкой" - посмотри новый антиафк в nexushelper'e
 	@SubscribeEvent
     public void antiAFK(TickEvent.PlayerTickEvent event) {
 			if (Reference.auth) 
@@ -155,7 +152,7 @@ public class Handler {
 		        	if (!isAntiAFK) 
 		        	{
 		        		isAntiAFK = true;
-			        	Minecraft.getMinecraft().player.sendChatMessage("+rep Holo");
+			        	Minecraft.getMinecraft().player.sendChatMessage("/near");
 		                new Timer().schedule(new TimerTask() {
 		                    @Override
 		                    public void run() {
@@ -166,7 +163,7 @@ public class Handler {
 		    }
 		}
 	}
-	
+	// Бинд на тп к НЧ. 
 	@SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onEvent(InputEvent.KeyInputEvent event) {
@@ -185,7 +182,7 @@ public class Handler {
             }
         }
     }
-	
+	// Открытие меню по нажатию
 	@SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void guiMenu(InputEvent.KeyInputEvent event) {
@@ -194,15 +191,15 @@ public class Handler {
             Minecraft.getMinecraft().displayGuiScreen(new ModGui());
         }
     }
-	
+	// Аунтификация в мод. 
 	@SubscribeEvent
 	public void fish(TickEvent.PlayerTickEvent event) {
         if (!isAuth) {
         	isAuth = true;
             //String nickname = Minecraft.getMinecraft().player.getName().trim();
-            //System.out.println("http://www.prime-test.org/?hash=x010&name=" + nickname);
+            //System.out.println("http://url_hosta/?hash=x010&name=" + nickname);
             try {
-                Document doc = Jsoup.connect("http://www.prime-test.org/?hash=x010&name=" /*+ "0.4.1"*/ + HWID.getHWID()).get();
+                Document doc = Jsoup.connect("http://url_hosta/?hash=x010&name=" /*+ "0.4.1"*/ + HWID.getHWID()).get();
                 Elements paragraphs = doc.select("p");
                 for (Element paragraph : paragraphs) {
                     if (paragraph.text().equals("ok")) {
@@ -232,7 +229,7 @@ public class Handler {
             }, 300000);
         }
     }
-	
+	// Получение цифр с примеров
 	public String changeStr(String msg) {
         String newMsg = "";
         final String[] sym = { "\uff10", "\uff11", "\uff12", "\uff13", "\uff14", "\uff15", "\uff16", "\uff17", "\uff18", "\uff19", "\uff0b", "\uff0d", "\uff0f", "\uff0a" };
